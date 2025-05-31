@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+✅ ¿Por qué es necesario este archivo "beans.xml"? Sin este archivo:
+- CDI no se activa, incluso si tienes beans anotados con @Named, @Inject, @SessionScoped, etc.
+- El contenedor (por ejemplo, Weld en Tomcat) no escaneará tus clases para inyectarlas automáticamente.
+- En otras palabras: las anotaciones no tendrán efecto, y tendrás errores o comportamientos inesperados.
+
+✅ La ruta de almacenamiento de este archivo debe ser siempre:
+- src/main/webapp/WEB-INF/beans.xml
+-->
+<beans xmlns="https://jakarta.ee/xml/ns/jakartaee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_3_0.xsd"
+       version="3.0"
+       bean-discovery-mode="annotated">
+</beans>

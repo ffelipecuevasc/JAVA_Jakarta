@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fcuevas</groupId>
+    <artifactId>IntroApp</artifactId>
+    <version>1.0</version>
+
+    <!-- 1° - Configurar el empaquetado "war" (Web Application Archive).
+        Este tipo de empaquetado le indica a Maven que el resultado del build será un archivo .war, el cual:
+        - Tiene una estructura específica: WEB-INF, web.xml, etc.
+        - Está diseñado para ser desplegado en un servidor de aplicaciones como Apache Tomcat, WildFly, etc. -->
+    <packaging>war</packaging>
+    <!-- Un proyecto con <packaging>jar</packaging> genera un .jar, que es adecuado para
+    aplicaciones de consola o backends sin interfaz web tradicional. Pero una aplicación que usa
+    Servlets necesita:
+    - Un web.xml (o anotaciones @WebServlet) que solo son válidas en aplicaciones web.
+    - Una estructura que pueda ser desplegada en un contenedor de servlets (Tomcat, Jetty...).
+    - Posiblemente archivos HTML, JSP o JS en la carpeta webapp. -->
+
+    <properties>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- 2° - Se debe incorporar la dependencia JAKARTA EE.
+        jakarta.jakartaee-api es un "superconjunto" que incluye todas las APIs estándar de Jakarta EE
+        (antes Java EE): Servlets, JSP, JSTL, JPA, EJB, etc.
+
+        Es útil para que tu proyecto pueda compilar usando estas APIs, especialmente si usas anotaciones
+        como @WebServlet, @PersistenceContext, etc. -->
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>9.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 3° - Es necesario especificar el "scope" (alcance) de la dependencia agregada porque de lo
+         contrario le estará asignando por defecto el scope COMPILE, algo que no nos sirve porque:
+
+         A) Scope COMPILE - Disponible en: compilación, empaquetado (jar/war), ejecución, pruebas. Si
+         incluída en el artefacto (app empaquetada) final.
+
+         B) Scope PROVIDED - Disponible en: compilación y pruebas. No incluída en el artefacto final.
+
+         C) Scope RUNTIME - Disponible en: tiempo de ejecución y pruebas. Si incluída en el artefacto
+         final.
+
+         D) Scope TEST - Disponible en: solo durante pruebas (mvn test). No incluída en el artefacto final.
+
+         Nosotros en este caso necesitamos el scope PROVIDED porque Tomcat ya proporciona esas clases en
+         tiempo de ejecución. Si la incluyeras, podrías tener conflictos de clases (por ejemplo, dos
+         versiones diferentes del API Servlet).
+         -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Este plugin sirve para la compilación de nuestras clases por Maven y también para la
+            compilación de las futuras pruebas unitarias -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+            </plugin>
+            <!-- Este plugin sirve para la configuración del servidor Apache Tomcat una vez que nuestro
+            proyecto quiera desplegarse -->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8082/manager/text</url>
+                    <username>admin</username>
+                    <password>admin</password>
+                </configuration>
+            </plugin>
+            <!-- El siguiente plugin es necesario para que la recolección de todas las clases, recursos y
+            dependencias del proyecto web cosa de empaquetarlos en el formato WAR (web application archive)-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.3</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
